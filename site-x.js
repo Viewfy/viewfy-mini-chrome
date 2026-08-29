@@ -698,18 +698,27 @@ globalThis.__vfXPrefixLen = (have, want) => {
     // selectAll only: a synthetic Range on the leaves makes Lexical revert
     // to the caret, so paste appends. Do not wipe first: an empty
     // placeholder will not take the next paste.
-    // Replacing and filling need opposite handling. With text in the box,
-    // nudge Lexical's selection and let the real selectionchange task land,
-    // or the paste appends at the caret. With an empty box do NEITHER: the
-    // nudge is what makes the placeholder swallow the first paste, which is
-    // the timing the comment above was won at.
+    // Replacing is not filling. execCommand("selectAll") does select the whole
+    // draft (verified: window.getSelection() spans it), but Lexical pastes at
+    // ITS caret and ignores the DOM selection, so a replace stacked. Delete
+    // through beforeinput, which Lexical does honor, and then paste into an
+    // empty box, which is the path the first draft already proves works.
+    // Replacing cannot go through paste. Lexical ignores the DOM selection on
+    // a synthetic paste, so it appends, and wiping first leaves a box that
+    // swallows the next paste entirely. insertText is the one write that does
+    // consume the selection. Its known failure is double-applying, native plus
+    // Lexical's own handler, which is exactly what doubled() and clipAppended
+    // below were written to clean up.
     if (norm(ownedText(box))) {
       selectAll();
-      await tick();
+      document.execCommand("insertText", false, text);
+      stripGhost(box);
+      clipAppended(box, text);
+      await frames(2);
       if (!box.isConnected) return false;
-    } else {
-      try { document.execCommand("selectAll", false, null); } catch {}
+      return landed(box, text) || doubled(norm(ownedText(box)), norm(text));
     }
+    try { document.execCommand("selectAll", false, null); } catch {}
     if (pasteIn(box, text)) {
       requestAnimationFrame(() => settle(box, text));
       // Lexical heard the paste. That is not the same as the box holding
@@ -846,6 +855,10 @@ globalThis.__vfXPrefixLen = (have, want) => {
         held.at = 0;
         return { inserted: true, where: "x" };
       }
+      // Whatever the replace does, it must not end with an empty box: a
+      // wiped draft the paste never replaced is the one failure the founder
+      // cannot undo.
+      const before = ownedText(box);
       const ok = await putOnce(box, text);
       const done = () => landed(box, text) || doubled(norm(ownedText(box)), norm(text));
       if (ok === true && done()) {
@@ -863,7 +876,17 @@ globalThis.__vfXPrefixLen = (have, want) => {
       }
       await putOnce(box, text);
       await frames(2);
-      const inserted = done();
+      let inserted = done();
+      if (!inserted && norm(before) && !norm(ownedText(box))) {
+        // Put his draft back and report failure, so the badge says so.
+        // insertText, not paste: an emptied box swallows a paste.
+        box.click?.();
+        box.focus();
+        try { document.execCommand("insertText", false, before); } catch {}
+        stripGhost(box);
+        await frames(2);
+        inserted = false;
+      }
       if (inserted) {
         held.text = want;
         held.at = Date.now();
