@@ -1,0 +1,5 @@
+# Release builds, rebuilt from source
+*.zip
+
+# OS
+.DS_Store

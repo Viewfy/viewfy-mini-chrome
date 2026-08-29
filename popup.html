@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<style>
+/* Viewfy tokens by default; theme.js overwrites from the active tab.
+   Same sheet as the shipped extension's popup, minus the cards the mini
+   does not have (product select, drafts, pace). */
+:root {
+  --bg: #F8F5F1; --surface: #FFFFFF; --surface-2: #F3F0EB;
+  --fg: #171717; --muted: #737373; --muted-2: #A3A3A3;
+  --border: #E5E5E5; --border-soft: rgba(0,0,0,.06);
+  --accent: #6EB5FF; --accent-50: #F3F9FF; --accent-200: #C5E1FF; --accent-700: #3D648C;
+  --on-fg: #fff; --fg-hover: #262626;
+  --success: #10B981; --danger: #EF4444; --danger-fg: #DC2626;
+  --danger-bg: #FEF2F2; --danger-border: #FECACA;
+  --ease: cubic-bezier(.16,1,.3,1);
+  --font: "Hanken Grotesk", "DM Sans", -apple-system, system-ui, sans-serif;
+  --shadow-1: 0 1px 2px rgba(18,16,12,.05);
+  --shadow-2: 0 4px 10px -4px rgba(18,16,12,.08);
+  --shadow-ring: 0 0 0 1px var(--border-soft);
+  --btn-shadow: 0 10px 24px -10px rgba(18,16,12,.7);
+  --r: 12px;
+  color-scheme: var(--scheme, light);
+}
+* { box-sizing: border-box; }
+body {
+  width: 288px; margin: 0; padding: 14px;
+  background: var(--bg); color: var(--fg);
+  font: 400 13px/1.5 var(--font); -webkit-font-smoothing: antialiased;
+}
+.hide { display: none !important; }
+.top {
+  display: flex; align-items: center; gap: 7px; margin-bottom: 12px;
+  padding: 0; border: 0; background: transparent; color: inherit;
+  font: inherit; cursor: pointer;
+}
+.top img { width: 20px; height: 20px; }
+.wordmark { font-weight: 800; font-size: 14px; letter-spacing: -.045em; }
+.top:hover .wordmark { color: var(--accent); }
+.tag {
+  font-weight: 700; font-size: 9.5px; letter-spacing: .05em; text-transform: uppercase;
+  color: var(--accent-700); background: var(--accent-50);
+  border-radius: 9999px; padding: 3px 7px;
+}
+
+.card {
+  background: var(--surface); border-radius: var(--r); padding: 12px;
+  box-shadow: var(--shadow-1), var(--shadow-2), var(--shadow-ring);
+  margin-bottom: 10px; min-width: 0; overflow: hidden;
+}
+.hero { text-align: center; padding: 16px 12px 14px; }
+.hero img { width: 96px; height: 96px; animation: bob 2.8s ease-in-out infinite; }
+.hero h2 { margin: 8px 0 4px; font-size: 15px; font-weight: 800; letter-spacing: -.03em; }
+.hero p { margin: 0 0 13px; color: var(--muted); font-size: 12px; }
+@keyframes bob { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-6px) rotate(2deg); } }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .42; } }
+.bone {
+  background: var(--surface-2); border-radius: 6px;
+  animation: pulse 1.35s var(--ease) infinite;
+}
+.bone-dot { width: 7px; height: 7px; border-radius: 9999px; flex: none; }
+.bone-name { display: block; width: 72px; height: 13px; }
+.bone-lbl { display: block; width: 78px; height: 8px; margin-bottom: 8px; }
+.bone-row { display: block; height: 38px; border-radius: var(--r); }
+@media (prefers-reduced-motion: reduce) {
+  .hero img, .bone { animation: none; }
+}
+
+.who { display: flex; align-items: center; gap: 8px; }
+.who .ok { width: 7px; height: 7px; border-radius: 9999px; background: var(--success); flex: none; }
+.who .grow { flex: 1; min-width: 0; }
+.who .name { font-weight: 700; font-size: 12.5px; letter-spacing: -.02em; }
+.who .dom { font-size: 11px; color: var(--muted-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.sites { display: flex; align-items: center; gap: 7px; color: var(--fg); }
+.sites svg { flex: none; display: block; }
+.hero .sites { justify-content: center; margin: 0 0 13px; }
+
+label.lbl {
+  display: block; font-size: 10px; font-weight: 700; letter-spacing: .045em;
+  text-transform: uppercase; color: var(--muted-2); margin-bottom: 5px;
+}
+
+.voice .name { font-weight: 700; font-size: 12.5px; letter-spacing: -.02em; }
+.voice .dom { font-size: 11px; color: var(--muted-2); }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+.chip {
+  background: var(--accent-50); color: var(--accent-700);
+  border-radius: 9999px; padding: 4px 9px; font-size: 11px; font-weight: 600;
+}
+.building { margin-top: 7px; font-size: 11.5px; color: var(--muted); }
+.row { display: flex; gap: 6px; align-items: center; margin-top: 10px; }
+
+button.btn {
+  font: 600 12.5px/1 var(--font); letter-spacing: -.012em;
+  padding: 10px 16px; border-radius: var(--r); cursor: pointer;
+  border: 1px solid var(--border); background: var(--surface); color: var(--fg);
+  transition: background .2s var(--ease), transform .12s var(--ease);
+}
+button.btn:hover { background: var(--surface-2); }
+button.btn:active { transform: scale(.98); }
+button.btn:disabled { opacity: .5; cursor: default; transform: none; }
+button.btn.primary { background: var(--fg); border-color: var(--fg); color: var(--on-fg); box-shadow: var(--btn-shadow); }
+button.btn.primary:hover:not(:disabled) { background: var(--fg-hover); }
+button.btn.primary:disabled:hover { background: var(--fg); }
+button.btn.wide { width: 100%; }
+button.btn.sm { padding: 7px 12px; font-size: 11.5px; }
+
+progress { width: 100%; height: 6px; margin-top: 10px; accent-color: var(--accent); }
+
+.np { margin: 0 0 10px; font-size: 12.5px; color: var(--muted); }
+.hint {
+  display: flex; gap: 8px; align-items: flex-start;
+  font-size: 11.5px; color: var(--muted); padding: 2px 2px 0;
+}
+.hint img { width: 22px; height: 22px; flex: none; margin-top: -3px; }
+.hint a { color: var(--accent-700); font-weight: 600; text-decoration: none; }
+.hint a:hover { text-decoration: underline; }
+#status { font-size: 11.5px; color: var(--muted); min-height: 15px; padding: 3px 2px 0; }
+#status.err { color: var(--danger); }
+</style>
+</head>
+<body>
+
+<button type="button" class="top" id="home" title="Open viewfy.ai">
+  <img src="assets/mark.png" alt="" />
+  <span class="wordmark">viewfy</span>
+  <span class="tag">mini</span>
+</button>
+
+<section id="view-out" class="card hero hide">
+  <img src="assets/hero.png" alt="" />
+  <h2>Gemini Nano will run inside your Chrome</h2>
+  <p id="hero-p">A real LLM, on your machine, free. Viewfy reads the X page and writes your post/reply with it, so your posts never leave this browser. No account, no server. 2 minutes to install, about 4GBs.</p>
+  <button class="btn primary" id="dl">Install Gemini Nano</button>
+  <progress id="dl-bar" max="1" value="0" hidden></progress>
+  <p class="np hide" id="hero-note"></p>
+</section>
+
+<section id="view-in">
+  <div class="card">
+    <div class="who" id="who-sk">
+      <span class="bone bone-dot"></span>
+      <span class="grow"><span class="bone bone-name"></span></span>
+    </div>
+    <div class="who hide" id="who">
+      <span class="ok"></span>
+      <span class="grow">
+        <div class="name">On-device Gemini Nano is ready</div>
+        <div class="dom">Private. Nothing leaves this browser.</div>
+      </span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="voice-sk">
+      <span class="bone bone-lbl"></span>
+      <span class="bone bone-row"></span>
+    </div>
+    <div class="hide voice" id="has-voice">
+      <label class="lbl">His voice</label>
+      <div id="voice-view"></div>
+      <div class="row">
+        <button class="btn sm hide" id="relearn">Learn again</button>
+        <button class="btn sm" id="forget">Forget</button>
+      </div>
+    </div>
+    <div class="hide" id="no-voice">
+      <label class="lbl">He does not know you</label>
+      <p class="np">He drafts in a plain voice until he reads yours. Open your own profile on X, scroll a few posts, then learn.</p>
+      <button class="btn primary wide" id="learn">Learn from this page</button>
+    </div>
+  </div>
+
+</section>
+
+<div id="status"></div>
+
+<script src="theme.js"></script>
+<script src="popup.js"></script>
+</body>
+</html>

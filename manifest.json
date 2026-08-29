@@ -1,0 +1,55 @@
+{
+  "manifest_version": 3,
+  "name": "Viewfy Mini",
+  "version": "0.1.0",
+  "description": "Reads your X account and the page you're on, then drafts messages in your voice. On-device LLM, no account, nothing leaves Chrome.",
+  "minimum_chrome_version": "138",
+  "permissions": ["storage", "activeTab"],
+  "icons": {
+    "16": "assets/icon-16.png",
+    "32": "assets/icon-32.png",
+    "48": "assets/icon-48.png",
+    "128": "assets/icon-128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Viewfy Mini",
+    "default_icon": {
+      "16": "assets/icon-16.png",
+      "32": "assets/icon-32.png",
+      "48": "assets/icon-48.png",
+      "128": "assets/icon-128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.x.com/*",
+        "https://x.com/*",
+        "https://*.twitter.com/*",
+        "https://twitter.com/*"
+      ],
+      "js": [
+        "sites.js",
+        "theme.js",
+        "site-x.js",
+        "nano.js",
+        "voice.js",
+        "content.js",
+        "field.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*.png"],
+      "matches": [
+        "https://*.x.com/*",
+        "https://x.com/*",
+        "https://*.twitter.com/*",
+        "https://twitter.com/*"
+      ]
+    }
+  ]
+}
