@@ -17,7 +17,7 @@
   globalThis.__vfLearnHere = async () => {
     const site = globalThis.__vfAdapter?.();
     const handle = site?.profileOf?.();
-    if (!handle) throw new Error("Open your own profile page first (x.com/you).");
+    if (!handle) throw new Error("Open your own X profile page first, the one with your posts on it.");
     const posts = site.ownPosts();
     if (posts.length < 3) throw new Error(`Only ${posts.length} posts visible. Scroll the profile a bit and retry.`);
     const profile = await globalThis.__vfNano.learnVoice(posts);
