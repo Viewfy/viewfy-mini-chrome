@@ -11,11 +11,15 @@ Mini drafts where you already are. The [full Viewfy](https://viewfy.ai/chrome)
 finds the threads where your buyers are asking and queues the drafts for your
 approval.
 
+![A drafted reply sitting in X's own reply box, with the mascot badge in the composer tool row](docs/reply.png)
+
 ## Requirements
 
 - Chrome 138 or newer
 - The built-in model component: a one-time download of about two minutes that
   the popup offers on first run. It is browser-wide, not per extension.
+
+<img src="docs/popup.png" alt="The toolbar popup reporting that on-device Gemini Nano is ready" width="420">
 
 ## Install
 
@@ -35,6 +39,8 @@ approval.
 3. Click him. The draft lands where you type, streaming live in native text
    fields. There is no review card. You edit it right there and you post it
    yourself.
+
+![The mascot badge in X's composer tool row, showing the Draft a post tip](docs/badge.png)
 4. Click him again for another version. One is prefetched in the background,
    so the swap is instant. Type a few words first and the tip flips to
    *Rewrite from this*: he builds the reply from your seed.
